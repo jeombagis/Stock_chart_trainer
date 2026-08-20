@@ -1,80 +1,135 @@
 import express from 'express';
 import cors from 'cors';
-import { MockMarketDataProvider, Instrument } from './MarketDataProvider';
+import { z } from 'zod';
+import { initDb, getOverallStats } from './db';
+import { YahooMarketDataProvider, INSTRUMENTS } from './MarketDataProvider';
+import { QuizService } from './QuizService';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
 
-const dataProvider = new MockMarketDataProvider();
+const dataProvider = new YahooMarketDataProvider();
+const quizService = new QuizService(dataProvider);
 
-// API: 지수 목록 및 상태 반환
+// Zod schemas
+const CreateQuizSchema = z.object({
+  instrument: z.enum(['sp500', 'nasdaq100']).optional().default('sp500'),
+  visibleDays: z.number().int().min(10).max(200).optional().default(60),
+  forecastDays: z.number().int().min(5).max(100).optional().default(20),
+  sidewaysThreshold: z.number().min(0).max(20).optional().default(2.0),
+});
+
+const AnswerQuizSchema = z.object({
+  prediction: z.enum(['상승', '횡보', '하락']),
+});
+
+// API: 지수 목록 및 데이터 상태 반환
 app.get('/api/instruments', async (req, res) => {
-  const instruments: Instrument[] = [
-    { id: 'sp500', symbol: '^GSPC', name: 'S&P 500' },
-    { id: 'nasdaq100', symbol: '^NDX', name: 'NASDAQ-100' }
-  ];
-  res.json({ instruments, status: 'ok' });
+  try {
+    const instruments = await dataProvider.getInstrumentList();
+    res.json({ instruments, status: 'ok' });
+  } catch (error: any) {
+    console.error('Failed to get instruments:', error);
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
+  }
 });
 
-// API: 새로운 퀴즈 출제 (노출 캔들만 반환)
+// API: 새 문제 출제 (노출 캔들만 반환, 미래 데이터 은닉)
 app.post('/api/quizzes', async (req, res) => {
-  const { instrument, visibleDays = 60, forecastDays = 20 } = req.body;
-  
-  // TODO: 실제로는 무작위 기준일(cutoffDate)을 골라서 데이터 반환 (현재는 임의의 최근 날짜로 모의 테스트)
-  const toDate = new Date();
-  const fromDate = new Date();
-  fromDate.setDate(toDate.getDate() - visibleDays - forecastDays); // 전체 필요한 데이터 범위
-  
-  const fromDateString = fromDate.toISOString().split('T')[0];
-  const toDateString = toDate.toISOString().split('T')[0];
-  
-  const allCandles = await dataProvider.getDailyHistory(
-    instrument === 'sp500' ? '^GSPC' : '^NDX', 
-    fromDateString, 
-    toDateString
-  );
-  
-  // 기준일(cutoff)을 뒤에서 forecastDays 만큼 뺀 날짜로 설정
-  const cutoffIndex = allCandles.length - forecastDays - 1;
-  const visibleCandles = allCandles.slice(0, cutoffIndex + 1);
-  const cutoffDate = visibleCandles[visibleCandles.length - 1].date;
-  
-  const quizId = `quiz_${Date.now()}`;
-  
-  // TODO: DB(SQLite)에 quizId, instrument, cutoffDate 저장
-  
-  res.json({
-    quizId,
-    instrument,
-    cutoffDate,
-    visibleDays: visibleCandles.length,
-    visibleCandles
-  });
+  try {
+    const parsed = CreateQuizSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid parameters', details: parsed.error.issues });
+    }
+
+    const quiz = await quizService.createQuiz(parsed.data);
+    res.json({
+      status: 'ok',
+      quiz
+    });
+  } catch (error: any) {
+    console.error('Failed to create quiz:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate quiz' });
+  }
 });
 
-// API: 퀴즈 정답 제출 (예측 결과 및 후속 캔들 반환)
+// API: 퀴즈 답안 제출 및 결과 확인
 app.post('/api/quizzes/:id/answer', async (req, res) => {
-  const { id } = req.params;
-  const { prediction } = req.body; // '상승' | '횡보' | '하락'
-  
-  // TODO: DB에서 id로 퀴즈 정보(cutoffDate, instrument) 조회
-  // 현재는 Mock으로 무조건 상승이 정답인 것처럼 가짜 데이터 반환
-  
-  const mockRevealedCandles = await dataProvider.getDailyHistory('^GSPC', '2023-01-01', '2023-01-20');
-  
-  res.json({
-    quizId: id,
-    prediction,
-    actualLabel: '상승',
-    returnPercent: 3.5,
-    isCorrect: prediction === '상승',
-    revealedCandles: mockRevealedCandles
-  });
+  try {
+    const { id } = req.params;
+    const parsed = AnswerQuizSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid prediction value. Must be 상승, 횡보, or 하락.', details: parsed.error.issues });
+    }
+
+    const result = await quizService.answerQuiz(id, parsed.data.prediction);
+    res.json({
+      status: 'ok',
+      ...result
+    });
+  } catch (error: any) {
+    console.error(`Failed to answer quiz ${req.params.id}:`, error);
+    const statusCode = error.status || 500;
+    res.status(statusCode).json({ error: error.message || 'Failed to submit answer' });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Backend server running at http://localhost:${port}`);
+// API: 전체/지수별 정답률 및 혼동 행렬 통계 조회
+app.get('/api/stats', async (req, res) => {
+  try {
+    const stats = await getOverallStats();
+    res.json({
+      status: 'ok',
+      stats
+    });
+  } catch (error: any) {
+    console.error('Failed to get stats:', error);
+    res.status(500).json({ error: error.message || 'Failed to retrieve stats' });
+  }
 });
+
+// API: 수동 데이터 갱신
+app.post('/api/data/refresh', async (req, res) => {
+  try {
+    const results: Record<string, number> = {};
+    for (const [id, info] of Object.entries(INSTRUMENTS)) {
+      results[id] = await dataProvider.syncSymbol(info.symbol);
+    }
+    const instruments = await dataProvider.getInstrumentList();
+    res.json({ status: 'ok', synced: results, instruments });
+  } catch (error: any) {
+    console.error('Failed to refresh data:', error);
+    res.status(500).json({ error: error.message || 'Failed to refresh data' });
+  }
+});
+
+// Startup sequence
+async function startServer() {
+  try {
+    await initDb();
+    console.log('[DB] SQLite database initialized successfully.');
+
+    // Background sync on startup (non-blocking)
+    (async () => {
+      for (const [id, info] of Object.entries(INSTRUMENTS)) {
+        try {
+          await dataProvider.syncSymbol(info.symbol);
+        } catch (err) {
+          console.warn(`[Startup Sync] Initial sync failed for ${id}:`, err);
+        }
+      }
+    })();
+
+    app.listen(port, () => {
+      console.log(`Backend server running at http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('Fatal: Failed to start backend server:', err);
+    process.exit(1);
+  }
+}
+
+startServer();
