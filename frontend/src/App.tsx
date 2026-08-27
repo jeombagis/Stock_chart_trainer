@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Chart } from './Chart';
-import type { CandleData } from './Chart';
+import type { CandleData, IndicatorsConfig } from './Chart';
 import { StatsModal } from './StatsModal';
 import type { StatsData } from './StatsModal';
 import './App.css';
@@ -59,6 +59,17 @@ export function App() {
   const [sidewaysThreshold, setSidewaysThreshold] = useState<number>(2.0);
   const [showSettings, setShowSettings] = useState<boolean>(false);
 
+  // Technical Indicators Configuration
+  const [indicators, setIndicators] = useState<IndicatorsConfig>({
+    bollingerBands: true,
+    sma5: true,
+    sma20: true,
+    sma60: true,
+    sma120: false,
+    volume: true,
+    rsi: false,
+  });
+
   // Quiz state
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [visibleCandles, setVisibleCandles] = useState<CandleData[]>([]);
@@ -70,6 +81,14 @@ export function App() {
   // Stats & Modal
   const [stats, setStats] = useState<StatsData | null>(null);
   const [isStatsOpen, setIsStatsOpen] = useState<boolean>(false);
+
+  // Toggle helper
+  const toggleIndicator = (key: keyof IndicatorsConfig) => {
+    setIndicators(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   // Fetch initial instruments and stats
   const fetchInstruments = useCallback(async () => {
@@ -226,7 +245,6 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [quizData, answerResult, submitting, submitAnswer, startQuiz]);
 
-
   return (
     <div className="app-layout">
       {/* Top Navigation */}
@@ -342,6 +360,68 @@ export function App() {
               </div>
             </div>
 
+            {/* Technical Indicators Toolbar */}
+            <div className="indicators-toolbar">
+              <div className="toolbar-title">보조지표:</div>
+              <div className="indicator-chips">
+                <button 
+                  className={`chip-btn ${indicators.bollingerBands ? 'active bb' : ''}`}
+                  onClick={() => toggleIndicator('bollingerBands')}
+                >
+                  <span className="chip-indicator dot-bb"></span>
+                  볼린저 밴드(20, 2)
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.sma5 ? 'active sma5' : ''}`}
+                  onClick={() => toggleIndicator('sma5')}
+                >
+                  <span className="chip-indicator dot-sma5"></span>
+                  5일선
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.sma20 ? 'active sma20' : ''}`}
+                  onClick={() => toggleIndicator('sma20')}
+                >
+                  <span className="chip-indicator dot-sma20"></span>
+                  20일선
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.sma60 ? 'active sma60' : ''}`}
+                  onClick={() => toggleIndicator('sma60')}
+                >
+                  <span className="chip-indicator dot-sma60"></span>
+                  60일선
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.sma120 ? 'active sma120' : ''}`}
+                  onClick={() => toggleIndicator('sma120')}
+                >
+                  <span className="chip-indicator dot-sma120"></span>
+                  120일선
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.volume ? 'active vol' : ''}`}
+                  onClick={() => toggleIndicator('volume')}
+                >
+                  <span className="chip-indicator dot-vol"></span>
+                  거래량
+                </button>
+
+                <button 
+                  className={`chip-btn ${indicators.rsi ? 'active rsi' : ''}`}
+                  onClick={() => toggleIndicator('rsi')}
+                >
+                  <span className="chip-indicator dot-rsi"></span>
+                  RSI(14)
+                </button>
+              </div>
+            </div>
+
             {/* Candlestick Chart */}
             <div className="chart-box">
               {visibleCandles.length > 0 && (
@@ -350,6 +430,7 @@ export function App() {
                   revealedData={revealedCandles}
                   cutoffDate={quizData.cutoffDate}
                   isAnswered={!!answerResult}
+                  indicators={indicators}
                 />
               )}
             </div>
@@ -442,17 +523,17 @@ export function App() {
             </p>
             <div className="hero-features">
               <div className="feature-item">
+                <span className="feat-icon">📊</span>
+                <strong>다양한 보조지표 지원</strong>
+                <p>볼린저 밴드, 이동평균선(5/20/60/120), 거래량, RSI를 자유롭게 켜고 끕니다.</p>
+              </div>
+              <div className="feature-item">
                 <span className="feat-icon">🛡️</span>
                 <strong>미래 데이터 원천 차단</strong>
                 <p>답안을 제출하기 전에는 어떤 미래 데이터도 브라우저로 전송되지 않습니다.</p>
               </div>
               <div className="feature-item">
                 <span className="feat-icon">🎯</span>
-                <strong>실제 시장 데이터 기반</strong>
-                <p>수천 개 거래일의 실제 역사적 주가 패턴으로 실전 감각을 기릅니다.</p>
-              </div>
-              <div className="feature-item">
-                <span className="feat-icon">📊</span>
                 <strong>혼동 행렬 통계 분석</strong>
                 <p>나의 예측 성향(상승 편향, 하락 편향 등)을 3x3 행렬로 정밀 분석합니다.</p>
               </div>
@@ -471,6 +552,25 @@ export function App() {
         isOpen={isStatsOpen} 
         onClose={() => setIsStatsOpen(false)} 
       />
+
+      {/* Footer / Disclaimer */}
+      <footer className="app-footer">
+        <div className="footer-content">
+          <div className="disclaimer-badge">
+            <span className="disclaimer-icon">⚠️</span>
+            <span className="disclaimer-title">면책 조항 (Disclaimer)</span>
+          </div>
+          <p className="disclaimer-text">
+            본 서비스는 금융 투자 권유나 자문 목적이 아니며, 과거 차트 패턴 분석 훈련 및 비상업적 교육/연구 목적으로 제작되었습니다.
+            제공되는 데이터는 과거 시세이며 오차나 지연이 있을 수 있습니다. 과거의 수익률이 미래의 성과를 보장하지 않으며, 모든 투자 판단과 결과에 대한 책임은 사용자 본인에게 있습니다.
+          </p>
+          <div className="footer-credits">
+            <span>Powered by <strong>TradingView Lightweight Charts™</strong> (Apache 2.0)</span>
+            <span className="dot">•</span>
+            <span>Market Data: <strong>Yahoo Finance</strong> (Non-commercial educational use)</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

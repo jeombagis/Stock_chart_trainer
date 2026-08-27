@@ -112,6 +112,9 @@ async function startServer() {
     await initDb();
     console.log('[DB] SQLite database initialized successfully.');
 
+    // Seed from bundled pre-cached data if DB is empty
+    await dataProvider.seedAllFromLocalFile();
+
     // Background sync on startup (non-blocking)
     (async () => {
       for (const [id, info] of Object.entries(INSTRUMENTS)) {

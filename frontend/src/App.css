@@ -322,6 +322,102 @@ body {
   border: 1px solid var(--border-color);
 }
 
+/* Indicators Toolbar */
+.indicators-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.indicator-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+}
+
+.chip-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.4;
+  transition: all 0.15s ease;
+}
+
+.chip-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.chip-btn.active .chip-indicator {
+  opacity: 1;
+}
+
+/* Specific Indicator Chip Colors */
+.dot-bb, .line-bb { background-color: #c084fc; }
+.dot-sma5, .line-sma5 { background-color: #34d399; }
+.dot-sma20, .line-sma20 { background-color: #fbbf24; }
+.dot-sma60, .line-sma60 { background-color: #f472b6; }
+.dot-sma120, .line-sma120 { background-color: #60a5fa; }
+.dot-vol, .vol-box { background-color: #38bdf8; }
+.dot-rsi, .line-rsi { background-color: #f59e0b; }
+
+.chip-btn.active.bb { border-color: #c084fc; background: rgba(192, 132, 252, 0.15); color: #e9d5ff; }
+.chip-btn.active.sma5 { border-color: #34d399; background: rgba(52, 211, 153, 0.15); color: #a7f3d0; }
+.chip-btn.active.sma20 { border-color: #fbbf24; background: rgba(251, 191, 36, 0.15); color: #fde68a; }
+.chip-btn.active.sma60 { border-color: #f472b6; background: rgba(244, 114, 182, 0.15); color: #fbcfe8; }
+.chip-btn.active.sma120 { border-color: #60a5fa; background: rgba(96, 165, 250, 0.15); color: #bfdbfe; }
+.chip-btn.active.vol { border-color: #38bdf8; background: rgba(56, 189, 248, 0.15); color: #bae6fd; }
+.chip-btn.active.rsi { border-color: #f59e0b; background: rgba(245, 158, 11, 0.15); color: #fed7aa; }
+
+.legend-line {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.text-bb { color: #e9d5ff; }
+.text-sma5 { color: #a7f3d0; }
+.text-sma20 { color: #fde68a; }
+.text-sma60 { color: #fbcfe8; }
+.text-sma120 { color: #bfdbfe; }
+.text-vol { color: #bae6fd; }
+.text-rsi { color: #fed7aa; }
+
 /* Chart */
 .chart-box {
   background: #131722;
@@ -951,6 +1047,64 @@ body {
 
 .btn-secondary:hover {
   background: var(--bg-card-hover);
+}
+
+/* Footer & Disclaimer */
+.app-footer {
+  margin-top: auto;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: 24px 20px;
+  color: var(--text-dim);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.disclaimer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.disclaimer-text {
+  margin: 0;
+  max-width: 820px;
+  color: var(--text-muted);
+}
+
+.footer-credits {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.footer-credits strong {
+  color: var(--text-muted);
+}
+
+.footer-credits .dot {
+  color: var(--border-color);
 }
 
 /* Responsive */

@@ -62,9 +62,14 @@
 ```bash
 cd backend
 npm install
+# (선택) 10년치 일봉 데이터 사전 캐싱 및 Seed 스냅샷 생성
+npm run precache
+
+# 개발 서버 시작
 npm run dev
 ```
-> 백엔드 서버는 `http://localhost:4000` 에서 구동됩니다. (포트 변경 가능)
+> 백엔드 서버는 `http://localhost:4000` 에서 구동됩니다.
+> 번들된 사전 캐시(`seedCandles.json`)가 포함되어 있어 인터넷 연결이 불안정하거나 오프라인 환경에서도 즉시 훈련이 가능합니다.
 
 ### 2. 프론트엔드 실행
 ```bash
@@ -83,3 +88,19 @@ npm run dev
 - `POST /api/quizzes/:id/answer`: 예측값(`prediction`) 제출 및 정오답, 실제 수익률, 후속 캔들 반환
 - `GET /api/stats`: 종합 정답률, 지수별 통계, 3x3 혼동 행렬 및 최근 히스토리 반환
 - `POST /api/data/refresh`: Yahoo Finance에서 최신 시장 데이터 수동 재동기화
+
+---
+
+## ⚖️ 면책 조항 및 라이선스 고지 (Disclaimer & Licensing)
+
+### 면책 조항 (Disclaimer)
+- 본 애플리케이션은 금융 투자 권유, 종목 추천, 또는 투자 자문 목적이 아니며, 과거 차트 패턴 분석 훈련 및 **비상업적 교육·연구 목적**으로 제작되었습니다.
+- 제공되는 데이터는 과거 시세 데이터이며 수집 시점 및 통신 상태에 따라 지연이나 오차가 발생할 수 있습니다.
+- 과거의 시세 패턴이나 성과가 미래의 투자 수익을 보장하지 않으며, 본 서비스를 참고하여 행한 모든 투자 결정 및 그로 인한 손익의 책임은 투자자 본인에게 있습니다.
+
+### 데이터 및 오픈소스 라이선스
+- **차트 라이브러리**: [TradingView Lightweight Charts™](https://github.com/tradingview/lightweight-charts) (Apache License 2.0)
+- **시장 데이터 출처**: Yahoo Finance Historical Data (비상업적 교육 및 연구 목적 인용)
+- **지수 상표권**: S&P 500은 *Standard & Poor's Financial Services LLC*, NASDAQ-100은 *Nasdaq, Inc.*의 등록 상표입니다.
+- **오픈소스 라이선스**: 본 프로젝트의 소스코드는 MIT License를 따릅니다.
+

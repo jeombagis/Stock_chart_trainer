@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.YahooMarketDataProvider = exports.INSTRUMENTS = void 0;
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const yahoo_finance2_1 = __importDefault(require("yahoo-finance2"));
 const db_1 = require("./db");
 exports.INSTRUMENTS = {
@@ -14,6 +16,36 @@ class YahooMarketDataProvider {
     yf;
     constructor() {
         this.yf = new yahoo_finance2_1.default();
+    }
+    // Load authentic pre-cached candles from seedCandles.json
+    loadSeedCandles(symbol) {
+        const seedPath = path_1.default.resolve(__dirname, './data/seedCandles.json');
+        try {
+            if (fs_1.default.existsSync(seedPath)) {
+                const raw = fs_1.default.readFileSync(seedPath, 'utf-8');
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed[symbol]) && parsed[symbol].length > 0) {
+                    console.log(`[MarketData] Loaded ${parsed[symbol].length} pre-cached candles for ${symbol} from seed file.`);
+                    return parsed[symbol];
+                }
+            }
+        }
+        catch (err) {
+            console.warn(`[MarketData] Failed to read seed file ${seedPath}:`, err.message);
+        }
+        return this.generateFixtureCandles(symbol, 1200);
+    }
+    // Seed SQLite DB from local pre-cached JSON if DB is empty
+    async seedAllFromLocalFile() {
+        for (const [id, info] of Object.entries(exports.INSTRUMENTS)) {
+            const stats = await (0, db_1.getCandleStats)(info.symbol);
+            if (stats.count === 0) {
+                console.log(`[MarketData] DB is empty for ${info.name} (${info.symbol}). Seeding from pre-cached data...`);
+                const candles = this.loadSeedCandles(info.symbol);
+                await (0, db_1.saveCandles)(info.symbol, candles);
+                console.log(`[MarketData] Successfully seeded ${candles.length} candles for ${info.symbol}.`);
+            }
+        }
     }
     // Generate fallback fixture data if network and cache both fail
     generateFixtureCandles(symbol, count = 1000) {
@@ -100,8 +132,8 @@ class YahooMarketDataProvider {
             console.warn(`[MarketData] Yahoo Finance fetch failed for ${symbol}: ${err.message}. Checking DB cache...`);
             const existing = await (0, db_1.getCandlesFromDb)(symbol);
             if (existing.length === 0) {
-                console.warn(`[MarketData] DB cache is empty for ${symbol}. Populating fallback fixture data.`);
-                const fixtures = this.generateFixtureCandles(symbol, 1200);
+                console.warn(`[MarketData] DB cache is empty for ${symbol}. Populating from pre-cached seed data.`);
+                const fixtures = this.loadSeedCandles(symbol);
                 await (0, db_1.saveCandles)(symbol, fixtures);
                 return fixtures.length;
             }
@@ -111,9 +143,16 @@ class YahooMarketDataProvider {
     async getDailyHistory(symbol, from, to) {
         let candles = await (0, db_1.getCandlesFromDb)(symbol, from, to);
         if (candles.length === 0) {
-            // Try to sync
-            await this.syncSymbol(symbol);
-            candles = await (0, db_1.getCandlesFromDb)(symbol, from, to);
+            // Try local seed first, then sync
+            const seedCandles = this.loadSeedCandles(symbol);
+            if (seedCandles.length > 0) {
+                await (0, db_1.saveCandles)(symbol, seedCandles);
+                candles = await (0, db_1.getCandlesFromDb)(symbol, from, to);
+            }
+            else {
+                await this.syncSymbol(symbol);
+                candles = await (0, db_1.getCandlesFromDb)(symbol, from, to);
+            }
         }
         return candles;
     }
