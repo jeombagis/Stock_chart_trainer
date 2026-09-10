@@ -34,60 +34,48 @@
 
 ## 🛠️ 기술 스택 및 주요 패키지
 
-### Frontend (`frontend/`)
 | 패키지 | 버전 | 역할 |
 |---|---|---|
 | `react`, `react-dom` | 19.x | 모던 컴포넌트 기반 UI 라이브러리 |
 | `typescript` | 6.x | 정적 타입 안정성 보장 |
 | `vite` | 8.x | 초고속 HMR 및 빌드 번들러 |
 | `lightweight-charts` | 5.2.x | TradingView 공식 고성능 Canvas 금융 차트 라이브러리 |
+| `yahoo-finance2` | 4.x | Yahoo Finance 시세 수집 라이브러리 (데이터 동기화 스크립트 전용) |
+| `tsx` | 4.x | TypeScript CLI 스크립트 고속 실행기 |
 | `Vanilla CSS` | - | 반응형 다크 핀테크 스타일 디자인 |
 
-### Backend (`backend/`)
-| 패키지 | 버전 | 역할 |
-|---|---|---|
-| `node.js` + `express` | 5.x | RESTful API 서버 프레임워크 |
-| `typescript` | 7.x | 백엔드 정적 타입 검사 |
-| `tsx` | 4.x | 무설정 고속 TypeScript 런타임 실행기 |
-| `yahoo-finance2` | 3.x | Yahoo Finance 공식/비공식 API 클라이언트 |
-| `sqlite3` | 6.x | 로컬 파일 기반 경량 영속 DB |
-| `zod` | 4.x | 런타임 API 파라미터 유효성 검증 |
-| `cors` | 2.x | 로컬 개발 환경 Cross-Origin 통신 허용 |
-
 ---
 
-## 🚀 로컬 실행 방법
+## 🚀 로컬 실행 & 빌드 방법
 
-### 1. 백엔드 실행
+### 1. 개발 서버 시작 (0초 딜레이 순수 프론트엔드)
 ```bash
-cd backend
-npm install
-# (선택) 10년치 일봉 데이터 사전 캐싱 및 Seed 스냅샷 생성
-npm run precache
-
-# 개발 서버 시작
-npm run dev
-```
-> 백엔드 서버는 `http://localhost:4000` 에서 구동됩니다.
-> 번들된 사전 캐시(`seedCandles.json`)가 포함되어 있어 인터넷 연결이 불안정하거나 오프라인 환경에서도 즉시 훈련이 가능합니다.
-
-### 2. 프론트엔드 실행
-```bash
-cd frontend
 npm install
 npm run dev
 ```
-> 프론트엔드는 `http://localhost:3100` 에서 구동되며, `/api` 요청은 백엔드로 프록시됩니다.
+> 애플리케이션이 `http://localhost:3100` 에서 즉시 구동됩니다.
+> 별도 백엔드 서버 없이 브라우저 로컬 엔진으로 동작하므로 네트워크 지연(0ms) 없이 즉시 훈련할 수 있습니다.
 
+### 2. 프로덕션 빌드 (Cloudflare Pages 배포용)
+```bash
+npm run build
+```
+> `dist/` 폴더에 정적 번들이 생성되며, Cloudflare Pages에 바로 배포할 수 있습니다.
+
+### 3. 차트 데이터 최신화 (Yahoo Finance 실시간 동기화)
+```bash
+npm run sync-data
+```
+> Yahoo Finance로부터 2015년 이후 최신 일봉 캔들 데이터를 자동으로 긁어와 `src/data/seedCandles.json`을 갱신합니다.
+> 데이터 갱신 후 `npm run build`를 실행하거나 Git에 커밋하면 배포 사이트에도 최신 데이터가 반영됩니다.
 ---
 
-## 🔌 주요 API 명세
+## 🏛️ 아키텍처 구조 (Zero-Server Architecture)
 
-- `GET /api/instruments`: 지원 지수 목록 및 데이터 보유 현황 반환
-- `POST /api/quizzes`: 무작위 퀴즈 생성 및 노출 구간 캔들만 반환 (`instrument`, `visibleDays`, `forecastDays`, `sidewaysThreshold`)
-- `POST /api/quizzes/:id/answer`: 예측값(`prediction`) 제출 및 정오답, 실제 수익률, 후속 캔들 반환
-- `GET /api/stats`: 종합 정답률, 지수별 통계, 3x3 혼동 행렬 및 최근 히스토리 반환
-- `POST /api/data/refresh`: Yahoo Finance에서 최신 시장 데이터 수동 재동기화
+- **클라이언트 퀴즈 엔진 (`src/services/quizService.ts`)**: 브라우저 로컬 메모리에서 10년 치 일봉 중 무작위 구간을 0ms 만에 추출하고 답안을 판정합니다.
+- **로컬 스토리지 통계 (`src/services/statsStorage.ts`)**: `localStorage`를 사용하여 사용자의 누적 훈련 전적, 3x3 혼동 행렬, 최근 15개 훈련 상세 기록을 영구 보존합니다.
+- **시장 데이터 동기화 도구 (`scripts/sync-data.ts`)**: Yahoo Finance API를 통해 S&P 500(`^GSPC`) 및 NASDAQ-100(`^NDX`)의 최신 일봉 데이터를 수집하고 `src/data/seedCandles.json`으로 스냅샷을 만듭니다.
+- **클라우드플레어 페이지스 배포**: 서버리스 정적 웹 호스팅으로 영구 무료($0) 및 무제한 대역폭으로 운영됩니다.
 
 ---
 
