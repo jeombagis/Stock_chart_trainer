@@ -77,34 +77,34 @@ export const Chart: React.FC<ChartProps> = ({
       width: chartContainerRef.current.clientWidth,
       height: 480,
       layout: {
-        background: { type: ColorType.Solid, color: '#131722' },
-        textColor: '#d1d4dc',
+        background: { type: ColorType.Solid, color: 'transparent' },
+        textColor: '#6e6e73',
       },
       grid: {
-        vertLines: { color: 'rgba(42, 46, 57, 0.6)' },
-        horzLines: { color: 'rgba(42, 46, 57, 0.6)' },
+        vertLines: { color: 'rgba(0, 0, 0, 0.05)' },
+        horzLines: { color: 'rgba(0, 0, 0, 0.05)' },
       },
       crosshair: {
         vertLine: {
-          color: 'rgba(224, 227, 235, 0.4)',
+          color: 'rgba(0, 0, 0, 0.25)',
           width: 1,
           style: 3,
         },
         horzLine: {
-          color: 'rgba(224, 227, 235, 0.4)',
+          color: 'rgba(0, 0, 0, 0.25)',
           width: 1,
           style: 3,
         },
       },
       rightPriceScale: {
-        borderColor: 'rgba(197, 203, 206, 0.4)',
+        borderColor: 'rgba(0, 0, 0, 0.08)',
         scaleMargins: {
           top: 0.1,
           bottom: 0.2, // Leave bottom room for Volume
         },
       },
       timeScale: {
-        borderColor: 'rgba(197, 203, 206, 0.4)',
+        borderColor: 'rgba(0, 0, 0, 0.08)',
         timeVisible: true,
         secondsVisible: false,
       },
@@ -114,6 +114,7 @@ export const Chart: React.FC<ChartProps> = ({
     const volumeSeries = chart.addSeries(HistogramSeries, {
       priceFormat: { type: 'volume' },
       priceScaleId: 'volume_scale',
+      color: 'rgba(2, 132, 199, 0.35)',
     });
     chart.priceScale('volume_scale').applyOptions({
       scaleMargins: {
@@ -124,40 +125,40 @@ export const Chart: React.FC<ChartProps> = ({
 
     // 2. Main Candlesticks (Visible Past)
     const visibleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#ef5350', // Red (Korean Standard)
-      downColor: '#26a69a', // Teal
+      upColor: '#e02424', // Apple Vibrant Red (Korean Standard)
+      downColor: '#059669', // Apple Vibrant Teal/Green
       borderVisible: false,
-      wickUpColor: '#ef5350',
-      wickDownColor: '#26a69a',
+      wickUpColor: '#e02424',
+      wickDownColor: '#059669',
     });
 
     // 3. Revealed Candlesticks (Future Highlight)
     const revealedSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#ff7043',
-      downColor: '#42a5f5',
+      upColor: '#f97316',
+      downColor: '#0284c7',
       borderVisible: true,
-      borderColor: '#ffd54f',
-      wickUpColor: '#ff7043',
-      wickDownColor: '#42a5f5',
+      borderColor: '#eab308',
+      wickUpColor: '#f97316',
+      wickDownColor: '#0284c7',
     });
 
     // 4. Bollinger Bands (20, 2)
     const bbUpper = chart.addSeries(LineSeries, {
-      color: '#c084fc', // Purple
+      color: '#9333ea', // Apple Purple
       lineWidth: 1,
       lineStyle: 2, // Dashed
       priceLineVisible: false,
       lastValueVisible: false,
     });
     const bbMiddle = chart.addSeries(LineSeries, {
-      color: '#e879f9', // Pink-purple
+      color: '#c084fc', // Soft Purple
       lineWidth: 1,
       lineStyle: 0,
       priceLineVisible: false,
       lastValueVisible: false,
     });
     const bbLower = chart.addSeries(LineSeries, {
-      color: '#c084fc',
+      color: '#9333ea',
       lineWidth: 1,
       lineStyle: 2,
       priceLineVisible: false,
@@ -166,25 +167,25 @@ export const Chart: React.FC<ChartProps> = ({
 
     // 5. Moving Averages (5, 20, 60, 120)
     const sma5 = chart.addSeries(LineSeries, {
-      color: '#34d399', // Mint (5d)
+      color: '#059669', // Green (5d)
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
     });
     const sma20 = chart.addSeries(LineSeries, {
-      color: '#fbbf24', // Yellow (20d)
+      color: '#d97706', // Amber (20d)
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
     });
     const sma60 = chart.addSeries(LineSeries, {
-      color: '#f472b6', // Pink (60d)
+      color: '#e11d48', // Rose Pink (60d)
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
     });
     const sma120 = chart.addSeries(LineSeries, {
-      color: '#60a5fa', // Blue (120d)
+      color: '#0284c7', // Blue (120d)
       lineWidth: 1,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -192,7 +193,7 @@ export const Chart: React.FC<ChartProps> = ({
 
     // 6. RSI (14)
     const rsiSeries = chart.addSeries(LineSeries, {
-      color: '#f59e0b',
+      color: '#ea580c', // Orange
       lineWidth: 2,
       priceScaleId: 'rsi_scale',
       priceLineVisible: false,
