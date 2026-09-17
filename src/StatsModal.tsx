@@ -48,8 +48,13 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, isOpen, onClose, 
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>📊 누적 훈련 통계 & 혼동 행렬</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <h2>누적 훈련 통계 & 혼동 행렬</h2>
+          <button className="close-btn" onClick={onClose} aria-label="닫기">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
 
         <div className="modal-body">
@@ -73,14 +78,14 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, isOpen, onClose, 
           <div className="section-title">지수별 성적</div>
           <div className="instrument-stats-row">
             <div className="instrument-card">
-              <div className="inst-name">🇺🇸 S&P 500</div>
+              <div className="inst-name">S&P 500</div>
               <div className="inst-acc">{stats.byInstrument.sp500?.accuracy || 0}%</div>
               <div className="inst-detail">
                 {stats.byInstrument.sp500?.correct || 0} / {stats.byInstrument.sp500?.total || 0} 정답
               </div>
             </div>
             <div className="instrument-card">
-              <div className="inst-name">🚀 NASDAQ-100</div>
+              <div className="inst-name">NASDAQ-100</div>
               <div className="inst-acc">{stats.byInstrument.nasdaq100?.accuracy || 0}%</div>
               <div className="inst-detail">
                 {stats.byInstrument.nasdaq100?.correct || 0} / {stats.byInstrument.nasdaq100?.total || 0} 정답
@@ -171,9 +176,9 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, isOpen, onClose, 
             <button 
               className="btn-secondary" 
               onClick={onReset}
-              style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)' }}
+              style={{ color: '#ff453a', borderColor: 'rgba(255, 69, 58, 0.4)' }}
             >
-              🗑️ 기록 초기화
+              기록 초기화
             </button>
           ) : <div />}
           <button className="btn-secondary" onClick={onClose}>닫기</button>

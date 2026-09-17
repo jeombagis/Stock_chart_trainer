@@ -194,17 +194,24 @@ export function App() {
 
   return (
     <div className="app-layout">
+      {/* Ambient Liquid Glow Backdrop for True Apple Glassmorphism */}
+      <div className="liquid-ambient-backdrop" aria-hidden="true">
+        <div className="ambient-orb orb-primary"></div>
+        <div className="ambient-orb orb-cyan"></div>
+        <div className="ambient-orb orb-purple"></div>
+        <div className="ambient-orb orb-amber"></div>
+      </div>
+
       {/* Top Navigation */}
       <header className="top-nav">
         <div className="nav-left">
-          <div className="brand-logo">📈 Chart Trainer</div>
+          <div className="brand-logo">Chart Trainer</div>
           <div className="brand-badge">S&P 500 · NASDAQ-100</div>
         </div>
 
         <div className="nav-right">
           {stats && (
             <button className="stats-pill-btn" onClick={() => setIsStatsOpen(true)}>
-              <span className="pill-icon">📊</span>
               <span>전적: <strong>{stats.correct}/{stats.total}</strong> ({stats.accuracy}%)</span>
             </button>
           )}
@@ -214,7 +221,7 @@ export function App() {
             onClick={() => setShowSettings(!showSettings)}
             title="난이도 및 설정"
           >
-            ⚙️ 설정
+            설정
           </button>
         </div>
       </header>
@@ -254,10 +261,10 @@ export function App() {
             </div>
           </div>
           <div className="settings-hint">
-            <div>💡 기준일 종가 대비 {forecastDays}거래일 후 종가의 수익률이 +{sidewaysThreshold}% 초과면 상승, -{sidewaysThreshold}% 미만이면 하락, 그 사이는 횡보로 판정됩니다.</div>
+            <div>기준일 종가 대비 {forecastDays}거래일 후 종가의 수익률이 +{sidewaysThreshold}% 초과면 상승, -{sidewaysThreshold}% 미만이면 하락, 그 사이는 횡보로 판정됩니다.</div>
             {instruments.length > 0 && instruments[0].maxDate && (
               <div style={{ marginTop: '6px', fontSize: '0.82rem', opacity: 0.85 }}>
-                📅 보유 시장 데이터: <strong>{instruments[0].minDate} ~ {instruments[0].maxDate}</strong> (터미널에서 <code>npm run sync-data</code> 실행 시 최신 시세로 자동 갱신됩니다)
+                보유 시장 데이터: <strong>{instruments[0].minDate} ~ {instruments[0].maxDate}</strong> (터미널에서 <code>npm run sync-data</code> 실행 시 최신 시세로 자동 갱신됩니다)
               </div>
             )}
           </div>
@@ -278,7 +285,7 @@ export function App() {
                   onClick={() => setSelectedInstrument(inst.id)}
                   disabled={loading}
                 >
-                  {inst.id === 'sp500' ? '🇺🇸 S&P 500' : '🚀 NASDAQ-100'}
+                  {inst.id === 'sp500' ? 'S&P 500' : 'NASDAQ-100'}
                   {inst.candleCount ? <span className="candle-count">({inst.candleCount.toLocaleString()}일)</span> : null}
                 </button>
               ))}
@@ -290,7 +297,7 @@ export function App() {
             onClick={startQuiz} 
             disabled={loading}
           >
-            {loading ? '데이터 탐색 중...' : (quizData ? '🔄 새로운 무작위 문제' : '🚀 훈련 시작 (Start Quiz)')}
+            {loading ? '데이터 탐색 중...' : (quizData ? '새로운 무작위 문제' : '훈련 시작 (Start Quiz)')}
           </button>
         </div>
 
@@ -402,7 +409,11 @@ export function App() {
                     disabled={submitting}
                   >
                     <div className="key-badge">1 or ↑</div>
-                    <div className="pred-icon">🔺</div>
+                    <div className="pred-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                      </svg>
+                    </div>
                     <div className="pred-label">상승 (Up)</div>
                     <div className="pred-rule">&gt; +{quizData.sidewaysThreshold}%</div>
                   </button>
@@ -413,7 +424,13 @@ export function App() {
                     disabled={submitting}
                   >
                     <div className="key-badge">2 or →</div>
-                    <div className="pred-icon">↔️</div>
+                    <div className="pred-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="15 8 19 12 15 16"></polyline>
+                        <polyline points="9 16 5 12 9 8"></polyline>
+                      </svg>
+                    </div>
                     <div className="pred-label">횡보 (Sideways)</div>
                     <div className="pred-rule">±{quizData.sidewaysThreshold}% 이내</div>
                   </button>
@@ -424,7 +441,11 @@ export function App() {
                     disabled={submitting}
                   >
                     <div className="key-badge">3 or ↓</div>
-                    <div className="pred-icon">🔻</div>
+                    <div className="pred-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
                     <div className="pred-label">하락 (Down)</div>
                     <div className="pred-rule">&lt; -{quizData.sidewaysThreshold}%</div>
                   </button>
@@ -433,7 +454,20 @@ export function App() {
             ) : (
               <div className={`result-card ${answerResult.isCorrect ? 'result-correct' : 'result-wrong'}`}>
                 <div className="result-headline">
-                  <span className="result-icon">{answerResult.isCorrect ? '🎉' : '💔'}</span>
+                  <span className="result-icon">
+                    {answerResult.isCorrect ? (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                    ) : (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e02424" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                      </svg>
+                    )}
+                  </span>
                   <span className="result-title">
                     {answerResult.isCorrect ? '정답입니다!' : '아쉽게 틀렸습니다!'}
                   </span>
@@ -467,7 +501,12 @@ export function App() {
           </div>
         ) : (
           <div className="welcome-hero">
-            <div className="hero-icon">📈</div>
+            <div className="hero-icon">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+              </svg>
+            </div>
             <h2>실전 차트 예측 트레이너</h2>
             <p>
               S&P 500과 NASDAQ-100의 10년치 실제 과거 일봉 캔들을 기반으로<br />
@@ -475,17 +514,33 @@ export function App() {
             </p>
             <div className="hero-features">
               <div className="feature-item">
-                <span className="feat-icon">📊</span>
+                <span className="feat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </span>
                 <strong>다양한 보조지표 지원</strong>
                 <p>볼린저 밴드, 이동평균선(5/20/60/120), 거래량, RSI를 자유롭게 켜고 끕니다.</p>
               </div>
               <div className="feature-item">
-                <span className="feat-icon">🛡️</span>
+                <span className="feat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                </span>
                 <strong>미래 데이터 원천 차단</strong>
                 <p>답안을 제출하기 전에는 어떤 미래 데이터도 브라우저로 전송되지 않습니다.</p>
               </div>
               <div className="feature-item">
-                <span className="feat-icon">🎯</span>
+                <span className="feat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="6"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                  </svg>
+                </span>
                 <strong>혼동 행렬 통계 분석</strong>
                 <p>나의 예측 성향(상승 편향, 하락 편향 등)을 3x3 행렬로 정밀 분석합니다.</p>
               </div>
@@ -510,7 +565,13 @@ export function App() {
       <footer className="app-footer">
         <div className="footer-content">
           <div className="disclaimer-badge">
-            <span className="disclaimer-icon">⚠️</span>
+            <span className="disclaimer-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </span>
             <span className="disclaimer-title">면책 조항 (Disclaimer)</span>
           </div>
           <p className="disclaimer-text">
