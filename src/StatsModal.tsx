@@ -1,4 +1,5 @@
 import type React from 'react';
+import { StockChartLogo } from './StockChartLogo';
 
 export interface StatsData {
   total: number;
@@ -48,7 +49,13 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, isOpen, onClose, 
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>누적 훈련 통계 & 혼동 행렬</h2>
+          <div className="modal-title-group">
+            <div className="modal-brand-badge">
+              <StockChartLogo size={16} idPrefix="modal-logo" />
+              <span>STOCK CHART TRAINER · NON-COMMERCIAL RESEARCH</span>
+            </div>
+            <h2>누적 통계 & 혼동 행렬 분석</h2>
+          </div>
           <button className="close-btn" onClick={onClose} aria-label="닫기">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -168,6 +175,10 @@ export const StatsModal: React.FC<StatsModalProps> = ({ stats, isOpen, onClose, 
             ) : (
               <div className="empty-history">아직 훈련 기록이 없습니다. 문제를 풀어보세요!</div>
             )}
+          </div>
+
+          <div className="modal-research-note">
+            ※ 본 분석 통계는 비상업적 학술 연구 및 개인 패턴 학습 목적으로 브라우저 로컬 스토리지에만 저장됩니다.
           </div>
         </div>
 

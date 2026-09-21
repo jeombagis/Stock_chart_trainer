@@ -12,6 +12,7 @@ import {
   type AnswerResult
 } from './services/quizService';
 import { computeStats, resetStats } from './services/statsStorage';
+import { StockChartLogo } from './StockChartLogo';
 import './App.css';
 
 export function App() {
@@ -205,8 +206,20 @@ export function App() {
       {/* Top Navigation */}
       <header className="top-nav">
         <div className="nav-left">
-          <div className="brand-logo">Chart Trainer</div>
+          <div 
+            className="brand-logo" 
+            onClick={() => quizData && setQuizData(null)}
+            title={quizData ? 'Stock Chart Trainer 홈으로' : 'Stock Chart Trainer'}
+            style={{ cursor: quizData ? 'pointer' : 'default' }}
+          >
+            <StockChartLogo size={28} idPrefix="nav-logo" />
+            <div className="brand-text">
+              <span className="brand-name-main">Stock Chart</span>
+              <span className="brand-name-sub">Trainer</span>
+            </div>
+          </div>
           <div className="brand-badge">S&P 500 · NASDAQ-100</div>
+          <div className="research-badge">비상업적 연구용</div>
         </div>
 
         <div className="nav-right">
@@ -502,17 +515,38 @@ export function App() {
           </div>
         ) : (
           <div className="welcome-hero">
-            <div className="hero-icon">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-                <polyline points="16 7 22 7 22 13"></polyline>
-              </svg>
+            <div className="hero-emblem-wrapper">
+              <div className="hero-emblem-glow" aria-hidden="true"></div>
+              <StockChartLogo size={68} idPrefix="hero-logo" className="hero-brand-emblem" />
             </div>
-            <h2>실전 차트 예측 트레이너</h2>
+
+            <div className="hero-brand-pill">
+              <span className="pill-dot"></span>
+              NON-COMMERCIAL RESEARCH PROJECT · 비상업적 연구·교육용
+            </div>
+
+            <h1 className="hero-title">
+              Stock Chart <span className="text-gradient">Trainer</span>
+            </h1>
+            <p className="hero-subtitle">과거 데이터 기반 주가 패턴 분석 & 비상업적 학술 연구 시뮬레이터</p>
             <p className="hero-desc">
-              S&P 500과 NASDAQ-100의 10년치 실제 과거 일봉 캔들을 기반으로
-              무작위 구간을 분석하고 다음 20일간의 주가 방향을 예측해보세요.
+              본 프로젝트는 금융 투자 권유나 상업적 목적이 아닌, 과거 10년 치 S&P 500 및 NASDAQ-100 실제 일봉 데이터를 활용해
+              차트 패턴과 통계적 예측 경향을 학습하기 위한 순수 비상업적 교육·연구용 시뮬레이터입니다.
             </p>
+
+            <div className="hero-research-box">
+              <span className="research-box-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0071e3" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+              </span>
+              <div className="research-box-text">
+                <strong>비상업적 연구 목적 고지:</strong> 본 서비스는 학술 연구 및 비영리 교육 목적으로만 운영되며, 투자 자문이나 금융 상품 권유와 일체 무관합니다.
+              </div>
+            </div>
+
             <div className="hero-features">
               <div className="feature-item">
                 <span className="feat-icon">
@@ -522,8 +556,8 @@ export function App() {
                     <line x1="6" y1="20" x2="6" y2="14"></line>
                   </svg>
                 </span>
-                <strong>다양한 보조지표 지원</strong>
-                <p>볼린저 밴드, 이동평균선(5/20/60/120), 거래량, RSI를 자유롭게 켜고 끕니다.</p>
+                <strong>과거 10년 차트 블라인드 시뮬레이션</strong>
+                <p>답안을 제출하기 전에는 미래 데이터가 브라우저에 전송되지 않아 편향 없는 객관적인 패턴 분석 훈련이 가능합니다.</p>
               </div>
               <div className="feature-item">
                 <span className="feat-icon">
@@ -531,8 +565,8 @@ export function App() {
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                   </svg>
                 </span>
-                <strong>미래 데이터 원천 차단</strong>
-                <p>답안을 제출하기 전에는 어떤 미래 데이터도 브라우저로 전송되지 않습니다.</p>
+                <strong>기술적 분석 보조지표 탑재</strong>
+                <p>볼린저 밴드(20,2), 이동평균선(5/20/60/120), 거래량, RSI(14)를 원클릭으로 켜고 끄며 가설을 검증합니다.</p>
               </div>
               <div className="feature-item">
                 <span className="feat-icon">
@@ -542,8 +576,8 @@ export function App() {
                     <circle cx="12" cy="12" r="2"></circle>
                   </svg>
                 </span>
-                <strong>혼동 행렬 통계 분석</strong>
-                <p>나의 예측 성향(상승 편향, 하락 편향 등)을 3x3 행렬로 정밀 분석합니다.</p>
+                <strong>혼동 행렬(Confusion Matrix) 통계 분석</strong>
+                <p>상승·횡보·하락 예측 패턴을 3×3 행렬로 통계 집계하여 인지 편향과 예측 분포를 객관적으로 분석합니다.</p>
               </div>
             </div>
 
@@ -552,8 +586,8 @@ export function App() {
                 '데이터 로딩 중...'
               ) : (
                 <>
-                  <span className="btn-text-full">지금 훈련 시작하기 (Space or Enter)</span>
-                  <span className="btn-text-short">지금 훈련 시작하기</span>
+                  <span className="btn-text-full">Stock Chart Trainer 시작하기 (Space or Enter)</span>
+                  <span className="btn-text-short">훈련 시작하기</span>
                 </>
               )}
             </button>
@@ -572,6 +606,17 @@ export function App() {
       {/* Footer / Disclaimer */}
       <footer className="app-footer">
         <div className="footer-content">
+          <div className="footer-brand-section">
+            <div className="footer-brand-header">
+              <StockChartLogo size={24} idPrefix="footer-logo" />
+              <span className="footer-brand-name">Stock Chart Trainer</span>
+              <span className="footer-research-tag">비상업적 연구용</span>
+            </div>
+            <p className="footer-brand-tagline">
+              Non-Commercial Educational & Research Historical Chart Simulator
+            </p>
+          </div>
+
           <div className="disclaimer-badge">
             <span className="disclaimer-icon">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -580,16 +625,18 @@ export function App() {
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
             </span>
-            <span className="disclaimer-title">면책 조항 (Disclaimer)</span>
+            <span className="disclaimer-title">비상업적 연구 및 교육 목적 고지 (Non-Commercial Disclaimer)</span>
           </div>
           <p className="disclaimer-text">
-            본 서비스는 금융 투자 권유나 자문 목적이 아니며, 과거 차트 패턴 분석 훈련 및 비상업적 교육/연구 목적으로 제작되었습니다.
-            제공되는 데이터는 과거 시세이며 오차나 지연이 있을 수 있습니다. 과거의 수익률이 미래의 성과를 보장하지 않으며, 모든 투자 판단과 결과에 대한 책임은 사용자 본인에게 있습니다.
+            본 서비스는 금융 투자 권유, 종목 추천, 또는 투자 자문 목적이 아니며, 과거 차트 패턴 분석 및 비상업적 학술 연구·교육 목적으로 제작되었습니다.
+            제공되는 데이터는 과거 시세이며 오차나 지연이 있을 수 있습니다. 과거의 수익률이나 패턴이 미래의 성과를 보장하지 않으며, 모든 투자 판단과 결과에 대한 책임은 사용자 본인에게 있습니다.
           </p>
           <div className="footer-credits">
             <span>Powered by <strong>TradingView Lightweight Charts™</strong> (Apache 2.0)</span>
             <span className="dot">•</span>
             <span>Market Data: <strong>Yahoo Finance</strong> (Non-commercial educational use)</span>
+            <span className="dot">•</span>
+            <span>Non-Commercial Research Project · <strong>Stock Chart Trainer</strong></span>
           </div>
         </div>
       </footer>
