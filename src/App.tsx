@@ -212,7 +212,8 @@ export function App() {
         <div className="nav-right">
           {stats && (
             <button className="stats-pill-btn" onClick={() => setIsStatsOpen(true)}>
-              <span>전적: <strong>{stats.correct}/{stats.total}</strong> ({stats.accuracy}%)</span>
+              <span className="stats-text-full">전적: <strong>{stats.correct}/{stats.total}</strong> ({stats.accuracy}%)</span>
+              <span className="stats-text-short"><strong>{stats.correct}/{stats.total}</strong> ({stats.accuracy}%)</span>
             </button>
           )}
 
@@ -310,8 +311,8 @@ export function App() {
                 <span className="meta-text">
                   예측 기준일: <strong className="highlight-date">{quizData.cutoffDate}</strong>
                 </span>
-                <span className="meta-text">
-                  (앞으로 <strong>{quizData.forecastDays}거래일</strong>의 방향을 맞춰보세요)
+                <span className="meta-text meta-forecast-guide">
+                  (향후 <strong>{quizData.forecastDays}거래일</strong> 예측)
                 </span>
               </div>
               <div className="quiz-meta-right">
@@ -508,8 +509,8 @@ export function App() {
               </svg>
             </div>
             <h2>실전 차트 예측 트레이너</h2>
-            <p>
-              S&P 500과 NASDAQ-100의 10년치 실제 과거 일봉 캔들을 기반으로<br />
+            <p className="hero-desc">
+              S&P 500과 NASDAQ-100의 10년치 실제 과거 일봉 캔들을 기반으로
               무작위 구간을 분석하고 다음 20일간의 주가 방향을 예측해보세요.
             </p>
             <div className="hero-features">
@@ -547,7 +548,14 @@ export function App() {
             </div>
 
             <button className="btn-hero-start" onClick={startQuiz} disabled={loading}>
-              {loading ? '데이터 로딩 중...' : '지금 훈련 시작하기 (Space or Enter)'}
+              {loading ? (
+                '데이터 로딩 중...'
+              ) : (
+                <>
+                  <span className="btn-text-full">지금 훈련 시작하기 (Space or Enter)</span>
+                  <span className="btn-text-short">지금 훈련 시작하기</span>
+                </>
+              )}
             </button>
           </div>
         )}
