@@ -72,10 +72,28 @@ export const Chart: React.FC<ChartProps> = ({
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
+    const getResponsiveHeight = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      if (width < 480) return 260;
+      if (width < 768) return 290;
+      // On PC / Desktop, comfortably size chart so all interaction buttons stay clearly in view
+      if (height < 720) return 260;
+      if (height < 800) return 290;
+      if (height < 900) return 330;
+      if (height < 1050) return 370;
+      return 400;
+    };
+
+    const initialHeight = getResponsiveHeight();
+    if (chartContainerRef.current) {
+      chartContainerRef.current.style.height = `${initialHeight}px`;
+    }
+
     // Create chart
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
-      height: 480,
+      height: initialHeight,
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#6e6e73',
@@ -224,7 +242,13 @@ export const Chart: React.FC<ChartProps> = ({
 
     const handleResize = () => {
       if (chartContainerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+        const newWidth = chartContainerRef.current.clientWidth;
+        const newHeight = getResponsiveHeight();
+        chartContainerRef.current.style.height = `${newHeight}px`;
+        chartRef.current.applyOptions({ 
+          width: newWidth,
+          height: newHeight 
+        });
         chartRef.current.timeScale().fitContent();
       }
     };
@@ -396,7 +420,7 @@ export const Chart: React.FC<ChartProps> = ({
         )}
       </div>
 
-      <div ref={chartContainerRef} style={{ width: '100%', height: '480px' }} />
+      <div ref={chartContainerRef} className="chart-canvas-container" style={{ width: '100%' }} />
     </div>
   );
 };
